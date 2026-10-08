@@ -108,4 +108,3 @@ def test_membership_expired(client):
     _create(client, membership_end="2000-01-01")
     body = client.get("/api/clients/Arjun/membership").get_json()
     assert body["status"] == "Expired"
-

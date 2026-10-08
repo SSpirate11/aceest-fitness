@@ -151,4 +151,3 @@ def membership_status(end_date, today=None):
     except ValueError:
         return "Unknown"
     return "Active" if end >= today else "Expired"
-

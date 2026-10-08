@@ -129,4 +129,3 @@ def check_membership(name):
         return jsonify(error="Client not found"), 404
     return jsonify(client=name, membership_end=client["membership_end"],
                    status=fitness.membership_status(client["membership_end"]))
-

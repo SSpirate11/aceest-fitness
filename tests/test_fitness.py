@@ -79,4 +79,3 @@ def test_membership_status():
     assert fitness.membership_status("2026-01-01", today) == "Expired"
     assert fitness.membership_status(None, today) == "Unknown"
     assert fitness.membership_status("not-a-date", today) == "Unknown"
-
