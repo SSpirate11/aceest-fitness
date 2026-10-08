@@ -4,6 +4,8 @@ import os
 from flask import Flask, jsonify, render_template_string, request
 
 from aceest import __version__, fitness
+from aceest.clients import bp as clients_bp
+from aceest.db import init_app as init_db
 
 HOME_PAGE = """<!doctype html>
 <html><head><title>ACEest Fitness & Gym</title>
@@ -16,14 +18,18 @@ code{color:#d4af37}</style></head>
 <p><b>Workout:</b> {{ p.workout | join(' | ') }}</p>
 <p><b>Diet:</b> {{ p.diet | join(' | ') }}</p></div>
 {% endfor %}
-<p>API: <code>/health</code> <code>/api/programs</code></p>
+<p>API: <code>/health</code> <code>/api/programs</code> <code>/api/clients</code></p>
 </body></html>"""
 
 
 def create_app(test_config=None):
     app = Flask(__name__)
+    app.config.from_mapping(DATABASE=os.environ.get("ACEEST_DB", "aceest_fitness.db"))
     if test_config:
         app.config.update(test_config)
+
+    init_db(app)
+    app.register_blueprint(clients_bp)
 
     @app.errorhandler(ValueError)
     def handle_value_error(err):
@@ -74,3 +80,4 @@ def create_app(test_config=None):
 
 if __name__ == "__main__":
     create_app().run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")))
+
