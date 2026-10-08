@@ -1,0 +1,16 @@
+.git
+.github
+.gitignore
+.dockerignore
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+*.db
+.pytest_cache/
+.coverage
+reports/
+legacy/
+Jenkinsfile
+README.md
+Dockerfile
