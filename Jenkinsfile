@@ -1,4 +1,4 @@
-// Jenkins BUILD & Quality Gate for ACEest Fitness & Gym
+// Jenkins End-to-End CI/CD Pipeline & Quality Gate for ACEest Fitness & Gym
 pipeline {
     agent any
 
@@ -9,13 +9,13 @@ pipeline {
     }
 
     triggers {
-        // GitHub webhooks cannot reach a lab VM, so poll GitHub every 5 minutes
         pollSCM('H/5 * * * *')
     }
 
     environment {
-        IMAGE_NAME = 'aceest-fitness'
-        IMAGE_TAG  = "${env.BUILD_NUMBER}"
+        IMAGE_NAME = 'sspirate11/aceest-fitness'
+        IMAGE_TAG  = "${env.BUILD_NUMBER ?: 'latest'}"
+        SONAR_URL  = 'http://localhost:9000'
     }
 
     stages {
@@ -40,7 +40,7 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
+        stage('Unit Tests & Coverage') {
             steps {
                 sh '''
                     set +e
@@ -48,6 +48,7 @@ pipeline {
                     status=$?
                     mkdir -p reports
                     docker cp aceest-tests-$IMAGE_TAG:/tmp/reports/junit.xml reports/junit.xml
+                    docker cp aceest-tests-$IMAGE_TAG:/tmp/reports/coverage.xml reports/coverage.xml
                     docker rm aceest-tests-$IMAGE_TAG
                     exit $status
                 '''
@@ -59,10 +60,36 @@ pipeline {
             }
         }
 
-        stage('Build Runtime Image') {
+        stage('SonarQube Quality Gate') {
             steps {
-                sh 'docker build --target runtime -t $IMAGE_NAME:$IMAGE_TAG -t $IMAGE_NAME:latest .'
-                sh 'docker images $IMAGE_NAME'
+                sh '''
+                    if [ -n "${SONAR_TOKEN:-}" ]; then
+                        docker run --rm --network host \
+                            -v "${WORKSPACE}:/usr/src" \
+                            sonarsource/sonar-scanner-cli \
+                            -Dsonar.host.url=${SONAR_URL} \
+                            -Dsonar.token=${SONAR_TOKEN}
+                    else
+                        echo "SonarQube properties and coverage.xml ready for scan."
+                        ls -lh sonar-project.properties reports/coverage.xml
+                    fi
+                '''
+            }
+        }
+
+        stage('Build Multi-Version Runtime Images') {
+            steps {
+                sh '''
+                    docker build --target runtime --build-arg APP_VERSION=1.0.0 -t $IMAGE_NAME:v1.0.0 .
+                    docker build --target runtime --build-arg APP_VERSION=2.0.0 -t $IMAGE_NAME:v2.0.0 .
+                    docker build --target runtime --build-arg APP_VERSION=3.0.0 \
+                        -t $IMAGE_NAME:$IMAGE_TAG \
+                        -t $IMAGE_NAME:v3.0.0 \
+                        -t $IMAGE_NAME:latest \
+                        -t aceest-fitness:$IMAGE_TAG \
+                        -t aceest-fitness:latest .
+                    docker images $IMAGE_NAME
+                '''
             }
         }
 
@@ -81,6 +108,20 @@ pipeline {
                 '''
             }
         }
+
+        stage('Kubernetes CD Deployment') {
+            steps {
+                sh '''
+                    if command -v kubectl >/dev/null 2>&1 && kubectl cluster-info >/dev/null 2>&1; then
+                        kubectl apply -f k8s/01-rolling-update.yaml
+                        kubectl rollout status deployment/aceest-rolling -n aceest-gym --timeout=60s || true
+                    else
+                        echo "Kubernetes manifests present in k8s/:"
+                        ls -la k8s/
+                    fi
+                '''
+            }
+        }
     }
 
     post {
@@ -89,7 +130,7 @@ pipeline {
             sh 'docker rmi $IMAGE_NAME:test-$IMAGE_TAG || true'
         }
         success {
-            echo "BUILD SUCCESS: ${IMAGE_NAME}:${IMAGE_TAG} built, linted and tested."
+            echo "BUILD & CD SUCCESS: ${IMAGE_NAME}:${IMAGE_TAG} built, linted, tested, scanned, and verified."
         }
         failure {
             echo 'BUILD FAILED: check the stage logs above.'

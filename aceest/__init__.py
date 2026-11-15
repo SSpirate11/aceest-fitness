@@ -1,2 +1,4 @@
 """ACEest Fitness & Gym - core package."""
-__version__ = "3.0.0"
+import os
+
+__version__ = os.environ.get("APP_VERSION", "3.0.0")

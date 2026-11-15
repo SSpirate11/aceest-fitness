@@ -8,20 +8,23 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# ---------- Stage 2: test (adds pytest/flake8 + tests; used by CI only) ----------
+# ---------- Stage 2: test (adds pytest/flake8 + tests; used by CI & SonarQube) ----------
 FROM base AS test
 COPY requirements-dev.txt .
 RUN pip install -r requirements-dev.txt
 COPY . .
-CMD ["pytest", "--junitxml=/tmp/reports/junit.xml"]
+RUN mkdir -p /tmp/reports
+CMD ["pytest", "--junitxml=/tmp/reports/junit.xml", "--cov=aceest", "--cov=app", "--cov-report=xml:/tmp/reports/coverage.xml", "--cov-report=term-missing"]
 
 # ---------- Stage 3: runtime (small, non-root production image) ----------
 FROM base AS runtime
+ARG APP_VERSION=3.0.0
+ENV APP_VERSION=${APP_VERSION} \
+    ACEEST_DB=/app/data/aceest_fitness.db
 RUN useradd --create-home --uid 10001 appuser \
     && mkdir -p /app/data && chown appuser:appuser /app/data
 COPY --chown=appuser:appuser app.py .
 COPY --chown=appuser:appuser aceest/ aceest/
-ENV ACEEST_DB=/app/data/aceest_fitness.db
 USER appuser
 EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
