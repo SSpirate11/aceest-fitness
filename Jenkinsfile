@@ -13,7 +13,7 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = 'sspirate11/aceest-fitness'
+        IMAGE_NAME = '9597654915/aceest-fitness'
         IMAGE_TAG  = "${env.BUILD_NUMBER ?: 'latest'}"
         SONAR_URL  = 'http://localhost:9000'
     }
@@ -68,7 +68,7 @@ pipeline {
                             -v "${WORKSPACE}:/usr/src" \
                             sonarsource/sonar-scanner-cli \
                             -Dsonar.host.url=${SONAR_URL} \
-                            -Dsonar.token=${SONAR_TOKEN}
+                            -Dsonar.login=${SONAR_TOKEN}
                     else
                         echo "SonarQube properties and coverage.xml ready for scan."
                         ls -lh sonar-project.properties reports/coverage.xml

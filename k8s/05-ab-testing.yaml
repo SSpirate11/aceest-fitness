@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
       - name: aceest-fitness
-        image: sspirate11/aceest-fitness:v2.0.0
+        image: 9597654915/aceest-fitness:v2.0.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
       - name: aceest-fitness
-        image: sspirate11/aceest-fitness:v3.0.0
+        image: 9597654915/aceest-fitness:v3.0.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000

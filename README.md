@@ -2,7 +2,7 @@
 
 [![ACEest CI/CD Pipeline](https://github.com/SSpirate11/aceest-fitness/actions/workflows/main.yml/badge.svg)](https://github.com/SSpirate11/aceest-fitness/actions/workflows/main.yml)
 
-A cloud-native Flask microservice for gym and fitness management refactored from the ACEest Tkinter prototypes (`Aceestver-1.0` … `Aceestver-3.2.4`). It features a 35-test Pytest suite (99% coverage), SonarQube static analysis & Quality Gate, a multi-stage non-root Docker architecture pushed to Docker Hub (`sspirate11/aceest-fitness`), dual CI/CD pipelines (GitHub Actions & Jenkins), and Kubernetes (Minikube) manifests implementing **5 progressive deployment strategies with automated rollback**.
+A cloud-native Flask microservice for gym and fitness management refactored from the ACEest Tkinter prototypes (`Aceestver-1.0` … `Aceestver-3.2.4`). It features a 35-test Pytest suite (99% coverage), SonarQube static analysis & Quality Gate, a multi-stage non-root Docker architecture pushed to Docker Hub (`9597654915/aceest-fitness`), dual CI/CD pipelines (GitHub Actions & Jenkins), and Kubernetes (Minikube) manifests implementing **5 progressive deployment strategies with automated rollback**.
 
 ## Features & API Endpoints
 
@@ -45,12 +45,12 @@ A cloud-native Flask microservice for gym and fitness management refactored from
 
 ## Docker Hub Multi-Version Repository
 
-Repository: `https://hub.docker.com/r/sspirate11/aceest-fitness`
+Repository: `https://hub.docker.com/r/9597654915/aceest-fitness`
 
 ```bash
-docker build --target runtime --build-arg APP_VERSION=1.0.0 -t sspirate11/aceest-fitness:v1.0.0 .
-docker build --target runtime --build-arg APP_VERSION=2.0.0 -t sspirate11/aceest-fitness:v2.0.0 .
-docker build --target runtime --build-arg APP_VERSION=3.0.0 -t sspirate11/aceest-fitness:v3.0.0 -t sspirate11/aceest-fitness:latest .
+docker build --target runtime --build-arg APP_VERSION=1.0.0 -t 9597654915/aceest-fitness:v1.0.0 .
+docker build --target runtime --build-arg APP_VERSION=2.0.0 -t 9597654915/aceest-fitness:v2.0.0 .
+docker build --target runtime --build-arg APP_VERSION=3.0.0 -t 9597654915/aceest-fitness:v3.0.0 -t 9597654915/aceest-fitness:latest .
 ```
 
 ## SonarQube Code Quality Analysis
